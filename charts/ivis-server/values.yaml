@@ -1,0 +1,66 @@
+name: ivis-server
+image:
+  repository: belltigerlee/ivis-server
+  tag: "0.4.0"
+  pullPolicy: Always
+  digest: ""
+imagePullSecrets: []
+nodeSelector: {}
+tolerations: []
+resources:
+  requests: {cpu: 150m, memory: 386Mi}
+  limits: {cpu: "1", memory: 2Gi}
+tmpSizeLimit: 64Mi
+service:
+  port: 8080
+postgres:
+  database: ivis_server
+  host: postgres
+  port: 5432
+  sslmode: require
+  credentials:
+    mode: dsn
+    existingSecret: ivis-server-postgres
+    dsnKey: dsn
+    usernameKey: username
+    passwordKey: password
+clickhouse:
+  url: http://clickhouse:8123
+  sourceDatabase: default
+  signalsDatabase: ivis_server
+  credentials:
+    existingSecret: ivis-server-clickhouse
+    usernameKey: username
+    passwordKey: password
+kafka:
+  bootstrap: kafka:9092
+  triggerTopic: scalex-trigger-events
+  coreGroup: ivis-server-core
+signals:
+  enabled: true
+  sourceId: ivis-server-signals
+  topics: [ivis-ebpf-logs, ivis-ebpf-metrics]
+  topicAdapters:
+    ivis-ebpf-logs: otlp-logs/json
+    ivis-ebpf-metrics: otlp-metrics/json
+  jsonBackend: stdlib
+  pendingRows: 100000
+kumec:
+  enabled: true
+inventory:
+  enabled: true
+  clusterName: CHANGE_ME
+  clusterUID: CHANGE_ME
+  intervalSeconds: 10
+rbac:
+  create: true
+postgresSynchronousCommit: "off"
+bootstrapLookbackSeconds: 3600
+schemaJob:
+  enabled: true
+  revision: "1"
+  activeDeadlineSeconds: 180
+  backoffLimit: 1
+  resources:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {cpu: "1", memory: 512Mi}

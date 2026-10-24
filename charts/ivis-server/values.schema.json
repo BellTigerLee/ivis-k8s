@@ -1,0 +1,477 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40,
+      "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+    },
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repository": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z0-9][a-z0-9./:_-]*$"
+        },
+        "tag": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$"
+        },
+        "pullPolicy": {
+          "enum": [
+            "Always",
+            "IfNotPresent",
+            "Never"
+          ]
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^(sha256:[a-f0-9]{64})?$"
+        }
+      },
+      "required": [
+        "repository",
+        "tag",
+        "pullPolicy",
+        "digest"
+      ]
+    },
+    "imagePullSecrets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 253,
+            "pattern": "^[a-z0-9]([-.a-z0-9]*[a-z0-9])?$"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    "nodeSelector": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "tolerations": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "resources": {
+      "type": "object",
+      "properties": {
+        "requests": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "limits": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "requests",
+        "limits"
+      ]
+    },
+    "tmpSizeLimit": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[1-9][0-9]*(Mi|Gi)$"
+    },
+    "service": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        }
+      },
+      "required": [
+        "port"
+      ]
+    },
+    "postgres": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "database": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,62}$"
+        },
+        "host": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9.-]*$"
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "sslmode": {
+          "enum": [
+            "disable",
+            "require",
+            "verify-ca",
+            "verify-full"
+          ]
+        },
+        "credentials": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "enum": [
+                "dsn",
+                "userPassword"
+              ]
+            },
+            "existingSecret": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 253,
+              "pattern": "^[a-z0-9]([-.a-z0-9]*[a-z0-9])?$"
+            },
+            "dsnKey": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 253,
+              "pattern": "^[-._a-zA-Z0-9]+$"
+            },
+            "usernameKey": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 253,
+              "pattern": "^[-._a-zA-Z0-9]+$"
+            },
+            "passwordKey": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 253,
+              "pattern": "^[-._a-zA-Z0-9]+$"
+            }
+          },
+          "required": [
+            "mode",
+            "existingSecret",
+            "dsnKey",
+            "usernameKey",
+            "passwordKey"
+          ]
+        }
+      },
+      "required": [
+        "database",
+        "host",
+        "port",
+        "sslmode",
+        "credentials"
+      ]
+    },
+    "clickhouse": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "url": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^https?://[a-zA-Z0-9][a-zA-Z0-9.:-]*/?$"
+        },
+        "sourceDatabase": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,62}$"
+        },
+        "signalsDatabase": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,62}$"
+        },
+        "credentials": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "existingSecret": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 253,
+              "pattern": "^[a-z0-9]([-.a-z0-9]*[a-z0-9])?$"
+            },
+            "usernameKey": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 253,
+              "pattern": "^[-._a-zA-Z0-9]+$"
+            },
+            "passwordKey": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 253,
+              "pattern": "^[-._a-zA-Z0-9]+$"
+            }
+          },
+          "required": [
+            "existingSecret",
+            "usernameKey",
+            "passwordKey"
+          ]
+        }
+      },
+      "required": [
+        "url",
+        "sourceDatabase",
+        "signalsDatabase",
+        "credentials"
+      ]
+    },
+    "kafka": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "bootstrap": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9.:-]+(,[A-Za-z0-9.:-]+)*$"
+        },
+        "triggerTopic": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9._-]{1,249}$"
+        },
+        "coreGroup": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9._-]+$"
+        }
+      },
+      "required": [
+        "bootstrap",
+        "triggerTopic",
+        "coreGroup"
+      ]
+    },
+    "signals": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "sourceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9._-]+$"
+        },
+        "topics": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9._-]{1,100}$"
+          }
+        },
+        "topicAdapters": {
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^[A-Za-z0-9._-]{1,100}$"
+          },
+          "additionalProperties": {
+            "enum": [
+              "otlp-logs/json",
+              "otlp-logs/protobuf",
+              "otlp-metrics/json",
+              "otlp-metrics/protobuf",
+              "ivis.signal/v1",
+              "ivis-process-legacy/v1"
+            ]
+          }
+        },
+        "jsonBackend": {
+          "enum": [
+            "stdlib",
+            "msgspec"
+          ]
+        },
+        "pendingRows": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 1000000
+        }
+      },
+      "required": [
+        "enabled",
+        "sourceId",
+        "topics",
+        "topicAdapters",
+        "jsonBackend",
+        "pendingRows"
+      ]
+    },
+    "kumec": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "enabled"
+      ]
+    },
+    "inventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "clusterName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "clusterUID": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "intervalSeconds": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 300
+        }
+      },
+      "required": [
+        "enabled",
+        "clusterName",
+        "clusterUID",
+        "intervalSeconds"
+      ]
+    },
+    "rbac": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "create": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "create"
+      ]
+    },
+    "postgresSynchronousCommit": {
+      "enum": [
+        "on",
+        "off"
+      ]
+    },
+    "bootstrapLookbackSeconds": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3600
+    },
+    "schemaJob": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^[A-Za-z0-9_.-]+$"
+        },
+        "activeDeadlineSeconds": {
+          "type": "integer",
+          "minimum": 30,
+          "maximum": 1800
+        },
+        "backoffLimit": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "requests": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "limits": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "requests",
+            "limits"
+          ]
+        }
+      },
+      "required": [
+        "enabled",
+        "revision",
+        "activeDeadlineSeconds",
+        "backoffLimit",
+        "resources"
+      ]
+    }
+  },
+  "required": [
+    "name",
+    "image",
+    "imagePullSecrets",
+    "nodeSelector",
+    "tolerations",
+    "resources",
+    "tmpSizeLimit",
+    "service",
+    "postgres",
+    "clickhouse",
+    "kafka",
+    "signals",
+    "kumec",
+    "inventory",
+    "rbac",
+    "postgresSynchronousCommit",
+    "bootstrapLookbackSeconds",
+    "schemaJob"
+  ],
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

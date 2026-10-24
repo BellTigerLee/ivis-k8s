@@ -1,0 +1,27 @@
+postgres:
+  database: ivis_server
+  credentials:
+    mode: dsn
+    existingSecret: existing-postgres-user
+    dsnKey: connection-uri
+clickhouse:
+  url: http://clickhouse.database.svc:8123
+  sourceDatabase: collector
+  signalsDatabase: ivis_server
+  credentials:
+    existingSecret: existing-clickhouse-user
+    usernameKey: username
+    passwordKey: password
+kafka:
+  bootstrap: kafka-bootstrap.data.svc:9092
+  triggerTopic: scalex-trigger-events
+  coreGroup: ivis-prod-core
+inventory:
+  clusterName: example-cluster
+  clusterUID: replace-with-collector-reported-cluster-uid
+signals:
+  sourceId: ivis-prod-signals
+  topics: [ivis-ebpf-logs, ivis-ebpf-metrics]
+  topicAdapters:
+    ivis-ebpf-logs: otlp-logs/json
+    ivis-ebpf-metrics: otlp-metrics/json

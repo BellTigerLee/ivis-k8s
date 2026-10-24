@@ -1,0 +1,40 @@
+{{- if .Values.schemaJob.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Values.name }}-schema-{{ include "server.hash" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  activeDeadlineSeconds: {{ .Values.schemaJob.activeDeadlineSeconds }}
+  backoffLimit: {{ .Values.schemaJob.backoffLimit }}
+  template:
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      securityContext:
+        {{- include "server.security" . | nindent 8 }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      nodeSelector: {{ .Values.nodeSelector | toJson }}
+      tolerations: {{ .Values.tolerations | toJson }}
+      containers:
+        - name: schema
+          image: {{ include "server.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [python, /opt/ivis/runner.py, schema]
+          envFrom:
+            - configMapRef: {name: {{ .Values.name }}-config}
+          securityContext:
+            {{- include "server.containerSecurity" . | nindent 12 }}
+          resources:
+            {{- toYaml .Values.schemaJob.resources | nindent 12 }}
+          volumeMounts:
+            {{- include "server.mounts" . | nindent 12 }}
+            - {name: sql, mountPath: /opt/sql, readOnly: true}
+      volumes:
+        {{- include "server.volumes" . | nindent 8 }}
+        - name: sql
+          configMap: {name: {{ .Values.name }}-sql}
+{{- end }}

@@ -1,0 +1,77 @@
+{{- include "server.validate" . -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.name }}-config
+  namespace: {{ .Release.Namespace }}
+data:
+  IVIS_APP_VERSION: {{ .Chart.AppVersion | quote }}
+  IVIS_HOST: "0.0.0.0"
+  IVIS_PORT: "8080"
+  IVIS_CORE_ENABLED: "1"
+  IVIS_DEV_MODE: "false"
+  IVIS_STATE_BACKEND: postgres
+  IVIS_RELATION_ENGINE: incremental
+  IVIS_STATE_PATH: /tmp/ivis.sqlite
+  IVIS_POSTGRES_GENERATION: default
+  IVIS_POSTGRES_SYNCHRONOUS_COMMIT: {{ .Values.postgresSynchronousCommit | quote }}
+  IVIS_BOOTSTRAP_LOOKBACK_SECONDS: {{ .Values.bootstrapLookbackSeconds | quote }}
+  IVIS_KAFKA_BOOTSTRAP: {{ .Values.kafka.bootstrap | quote }}
+  IVIS_TRIGGER_TOPIC: {{ .Values.kafka.triggerTopic | quote }}
+  IVIS_KAFKA_GROUP: {{ .Values.kafka.coreGroup | quote }}
+  IVIS_CH_TRANSPORT: http
+  IVIS_CLICKHOUSE_URL: {{ .Values.clickhouse.url | quote }}
+  IVIS_CLICKHOUSE_DATABASE: {{ .Values.clickhouse.sourceDatabase | quote }}
+  IVIS_SIGNALS_ENABLED: {{ ternary "1" "0" .Values.signals.enabled | quote }}
+  IVIS_KUMEC_ENABLED: {{ ternary "1" "0" .Values.kumec.enabled | quote }}
+  IVIS_SIGNALS_SOURCE_ID: {{ .Values.signals.sourceId | quote }}
+  IVIS_SIGNALS_KAFKA_BOOTSTRAP: {{ .Values.kafka.bootstrap | quote }}
+  IVIS_SIGNALS_TOPICS: {{ join "," .Values.signals.topics | quote }}
+  {{- $hints := list }}
+  {{- range $topic, $adapter := .Values.signals.topicAdapters }}
+  {{- $hints = append $hints (printf "%s=%s" $topic $adapter) }}
+  {{- end }}
+  IVIS_SIGNALS_TOPIC_ADAPTERS: {{ join "," $hints | quote }}
+  IVIS_SIGNALS_OTLP_JSON_BACKEND: {{ .Values.signals.jsonBackend | quote }}
+  IVIS_SIGNALS_PENDING_ROWS: {{ .Values.signals.pendingRows | quote }}
+  IVIS_SIGNALS_FIXTURE_ADAPTER: "0"
+  IVIS_SIGNALS_CH_URL: {{ .Values.clickhouse.url | quote }}
+  IVIS_SIGNALS_CH_DATABASE: {{ .Values.clickhouse.signalsDatabase | quote }}
+  IVIS_SIGNALS_CH_PASSWORD_FILE: /credentials/clickhouse/password
+  IVIS_INVENTORY_ENABLED: {{ ternary "1" "0" .Values.inventory.enabled | quote }}
+  IVIS_INVENTORY_CLUSTER_NAME: {{ .Values.inventory.clusterName | quote }}
+  IVIS_INVENTORY_CLUSTER_UID: {{ .Values.inventory.clusterUID | quote }}
+  IVIS_INVENTORY_INTERVAL_SECONDS: {{ .Values.inventory.intervalSeconds | quote }}
+  IVIS_METRICS_LAYER: disabled
+  IVIS_METRICS_COLLECTION_ENABLED: "0"
+  IVIS_METRICS_METADATA_ENABLED: "0"
+  IVIS_METRICS_OBSERVATION_ENABLED: "0"
+  IVIS_METRICS_ARCHIVE_ENABLED: "0"
+  IVIS_EBPF_ENABLED: "0"
+  IVIS_EBPF_PROCESS_ENABLED: "0"
+  IVIS_EBPF_CPU_COUNTS_ENABLED: "0"
+  IVIS_COMPACT_ENABLED: "0"
+  IVIS_FLOW_MODE: "off"
+  IVIS_HELM_PG_MODE: {{ .Values.postgres.credentials.mode | quote }}
+  IVIS_HELM_PG_DATABASE: {{ .Values.postgres.database | quote }}
+  IVIS_HELM_PG_HOST: {{ .Values.postgres.host | quote }}
+  IVIS_HELM_PG_PORT: {{ .Values.postgres.port | quote }}
+  IVIS_HELM_PG_SSLMODE: {{ .Values.postgres.sslmode | quote }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.name }}-runtime
+  namespace: {{ .Release.Namespace }}
+data:
+{{ (.Files.Glob "files/*.py").AsConfig | indent 2 }}
+{{- if .Values.schemaJob.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.name }}-sql
+  namespace: {{ .Release.Namespace }}
+data:
+{{ (.Files.Glob "files/sql/*").AsConfig | indent 2 }}
+{{- end }}

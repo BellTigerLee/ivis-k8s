@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector:
+    matchLabels:
+      {{- include "server.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "server.labels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include "server.hash" . }}
+    spec:
+      serviceAccountName: {{ .Values.name }}
+      automountServiceAccountToken: {{ .Values.inventory.enabled }}
+      securityContext:
+        {{- include "server.security" . | nindent 8 }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      nodeSelector: {{ .Values.nodeSelector | toJson }}
+      tolerations: {{ .Values.tolerations | toJson }}
+      containers:
+        - name: server
+          image: {{ include "server.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [python, /opt/ivis/runner.py, server]
+          envFrom:
+            - configMapRef: {name: {{ .Values.name }}-config}
+          ports: [{name: http, containerPort: 8080}]
+          securityContext:
+            {{- include "server.containerSecurity" . | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          startupProbe:
+            httpGet: {path: /healthz, port: http}
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            httpGet: {path: /healthz, port: http}
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: {path: /readyz, port: http}
+            periodSeconds: 5
+          volumeMounts:
+            {{- include "server.mounts" . | nindent 12 }}
+      volumes:
+        {{- include "server.volumes" . | nindent 8 }}

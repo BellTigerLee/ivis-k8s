@@ -1,0 +1,8 @@
+apiVersion: v2
+name: ivis-server
+description: IVIS 0.4.0 server with an explicit SQL preparation Job for existing databases
+type: application
+version: 0.1.0
+appVersion: "0.4.0"
+home: https://github.com/belltigerlee/ivis-k8s
+keywords: [ivis, observability]
