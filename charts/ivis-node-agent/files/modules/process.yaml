@@ -1,0 +1,15 @@
+apiVersion: ivis.module-descriptor/v1
+module:
+  id: process
+  source_repository: https://github.com/BellTigerLee/ivis-prove-agent
+  sources: [kernel, procfs_snapshot_ticks_100hz]
+  image: {repository: belltigerlee/ivis-process-module, tag: 0.5.1}
+  profile: process
+  executable: /ivis-process-module
+  feature: {snapshot: false, max_entries: 32768}
+  resources:
+    requests: {cpu: 100m, memory: 64Mi}
+    limits: {cpu: "1", memory: 256Mi}
+settings:
+  snapshot: {field: snapshot, type: boolean}
+  maxEntries: {field: max_entries, type: integer, minimum: 16, maximum: 131072}

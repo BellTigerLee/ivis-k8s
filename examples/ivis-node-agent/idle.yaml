@@ -1,0 +1,8 @@
+# Disable all observation modules explicitly; omission inherits chart defaults.
+modules:
+  process:
+    enabled: false
+  cpu:
+    enabled: false
+  syscall:
+    enabled: false

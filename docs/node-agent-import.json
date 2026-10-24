@@ -1,0 +1,48 @@
+{
+  "source_repository": "ivis-prove-agent",
+  "source_path": "k8s/ivis-node-agent",
+  "source_head": "9d0aa8d0fc3cec7a6f47450e0d3232ca685ceefb",
+  "source_state": "working tree with uncommitted changes; not a release checkout",
+  "source_sha256": {
+    "Chart.yaml": "eb9e0b5661b27fb13910a166d5ecb6d4eaffcfb506733a81bfd8971dea591b6b",
+    ".helmignore": "306cf5d85db797cc28fd4154e3df407bc5c08b0ef8d2a955a6ff302e67fcbbe3",
+    "values.yaml": "b96b400f9931c6892a8ef3122184f8e3b820a73a78c460ca3c25ae4b89e0881b",
+    "values.schema.json": "f2c067328b5161ecd6638dac60bd6476a08183e62444a16c1b5e1644b6cf006e",
+    "templates/_helpers.tpl": "32190299753bea25b802e620d567071f825d2ed9314d523bea4c5f62f67622f9",
+    "templates/_builtin.tpl": "8109f109f4baa4dc72aac16df2a5a9fa96a9d646ab4a63a7cac07854aa3733b6",
+    "templates/configmap.yaml": "fa042c6669e14511122f9e309fbb75a30dde34d0084c192a8bdfd373eb37b359",
+    "templates/rbac.tpl": "e11d5c5e9c24e4493c84b8e3aaa8fa2146ef3c1446246a8392ca57845cb10af0",
+    "templates/builtin-daemonset.tpl": "ac0a9f4e54b76878cb210d0b391549d3c78eb19e2cf1951e8f94ebea99647445",
+    "templates/legacy-daemonset.tpl": "c69689b6465d338247f582cf59f7e73c086bb92bbd9186f64c20fe91d6ab1654",
+    "files/modules/process.yaml": "f2298eb0168356bfa30a7b02d2b8f074e99ee7dc424334e5519ed8af91f86572",
+    "files/modules/cpu.yaml": "767794fb4c6607860819df506371b0c80b6c6d4e0c3d1256d0874cde844c9ae1",
+    "files/modules/syscall.yaml": "3029ffdd464d9a126ad511f9d9152cc930c8a7cfb02a843f37f24f56525342a9"
+  },
+  "distribution_sha256": {
+    ".helmignore": "306cf5d85db797cc28fd4154e3df407bc5c08b0ef8d2a955a6ff302e67fcbbe3",
+    "Chart.yaml": "eb9e0b5661b27fb13910a166d5ecb6d4eaffcfb506733a81bfd8971dea591b6b",
+    "LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "README.md": "2f46f77bb65a700209bd0f86f0b3a8711cfb52803871afd79585c6b4cf982774",
+    "files/modules/cpu.yaml": "767794fb4c6607860819df506371b0c80b6c6d4e0c3d1256d0874cde844c9ae1",
+    "files/modules/process.yaml": "f2298eb0168356bfa30a7b02d2b8f074e99ee7dc424334e5519ed8af91f86572",
+    "files/modules/syscall.yaml": "fd3ac2b0ce587a3209bd6d51c9ad71fa5ee3ad9a8482355267efe0db59e28cf9",
+    "templates/_builtin.tpl": "8109f109f4baa4dc72aac16df2a5a9fa96a9d646ab4a63a7cac07854aa3733b6",
+    "templates/_helpers.tpl": "32190299753bea25b802e620d567071f825d2ed9314d523bea4c5f62f67622f9",
+    "templates/builtin-daemonset.tpl": "ac0a9f4e54b76878cb210d0b391549d3c78eb19e2cf1951e8f94ebea99647445",
+    "templates/configmap.yaml": "fa042c6669e14511122f9e309fbb75a30dde34d0084c192a8bdfd373eb37b359",
+    "templates/legacy-daemonset.tpl": "c69689b6465d338247f582cf59f7e73c086bb92bbd9186f64c20fe91d6ab1654",
+    "templates/rbac.tpl": "e11d5c5e9c24e4493c84b8e3aaa8fa2146ef3c1446246a8392ca57845cb10af0",
+    "values.schema.json": "f2c067328b5161ecd6638dac60bd6476a08183e62444a16c1b5e1644b6cf006e",
+    "values.yaml": "35a6e2ac8d99df595ca478be117a16f2758987dfeae5c34e5c427ec01971a0a3"
+  },
+  "render_parity_profiles": [
+    "default",
+    "idle",
+    "external",
+    "protobuf",
+    "timing"
+  ],
+  "source_files_unchanged": true,
+  "source_status_unchanged": true,
+  "existing_license_unchanged": true
+}

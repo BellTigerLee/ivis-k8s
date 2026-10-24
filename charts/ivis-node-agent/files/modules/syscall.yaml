@@ -1,0 +1,43 @@
+apiVersion: ivis.module-descriptor/v1
+module:
+  id: syscall
+  source_repository: https://github.com/BellTigerLee/ivis-prove-agent
+  sources: [syscall]
+  # No tag here: the image follows the chart's image.tag unless overridden. That
+  # tag existing in a registry is a release decision, not something this file
+  # asserts. Enablement is selected by values.yaml, not this descriptor.
+  image: {repository: belltigerlee/ivis-syscall-module}
+  profile: kernel
+  # Named syscall tracepoints need read-only tracefs for their event id and format.
+  requires_tracefs: true
+  executable: /ivis-syscall-module
+  schemas:
+    - name: syscall.exit_counts
+      version: 1
+      fields:
+        begin_ns: uint64
+        end_ns: uint64
+        collection_epoch: uint64
+        cut_ns: uint64
+        enabled_syscall_mask: uint64
+        abi: string
+        syscall: string
+        syscall_nr: uint64
+        result_class: string
+        result_code: uint64
+        count: uint64
+        epoch_loss: uint64
+        partial: bool
+  feature: {max_entries: 32768, max_interval_ns: 100000000, openat: true, openat2: true, connect: true, mmap: true}
+  resources:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {cpu: "2", memory: 512Mi}
+settings:
+  # window is the event-time bucket width. Maps rotate on a fixed 1s cadence
+  # regardless; a small window means more distinct rows, not faster collection.
+  window: {field: max_interval_ns, type: duration, minimum: 1000000, maximum: 60000000000}
+  maxEntries: {field: max_entries, type: integer, minimum: 16, maximum: 131072}
+  openat: {field: openat, type: boolean}
+  openat2: {field: openat2, type: boolean}
+  connect: {field: connect, type: boolean}
+  mmap: {field: mmap, type: boolean}

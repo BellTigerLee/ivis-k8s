@@ -1,0 +1,7 @@
+apiVersion: v2
+name: ivis-node-agent
+description: Modular node observation agent, rendered directly by Argo CD.
+type: application
+version: 0.5.1
+appVersion: "0.5.1"
+kubeVersion: ">=1.30.0-0"

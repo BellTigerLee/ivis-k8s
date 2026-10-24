@@ -1,0 +1,22 @@
+# Copy this file and replace the endpoint before installing.
+# This is an override, not a replacement for the chart defaults.
+image:
+  repository: belltigerlee/ivis-prove-agent
+  tag: "0.5.3" # Verify registry availability and compatibility before installing.
+  pullPolicy: Always
+agent:
+  otlp:
+    endpoint: http://collector.example.invalid:4318
+    protocol: http
+    use_protobuf: false
+
+nodeSelector:
+  kubernetes.io/os: linux
+  kubernetes.io/arch: amd64
+modules:
+  process:
+    enabled: true
+  cpu:
+    enabled: true
+  syscall:
+    enabled: true

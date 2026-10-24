@@ -1,0 +1,455 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z]([-a-z0-9]*[a-z0-9])?$",
+      "maxLength": 48
+    },
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repository": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+([.-][a-z0-9]+)*(:[0-9]+)?(/[a-z0-9]+([._-][a-z0-9]+)*)*$"
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "tag": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$"
+        },
+        "pullPolicy": {
+          "enum": [
+            "IfNotPresent",
+            "Always",
+            "Never"
+          ]
+        }
+      },
+      "required": [
+        "repository",
+        "tag",
+        "pullPolicy"
+      ]
+    },
+    "imagePullSecrets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    "nodeSelector": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "podLabels": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "runtimeSocket": {
+      "type": "string",
+      "pattern": "^/[^\\s]+$"
+    },
+    "security": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ca": {
+          "$ref": "#/definitions/secret"
+        },
+        "certificate": {
+          "$ref": "#/definitions/secret"
+        },
+        "key": {
+          "$ref": "#/definitions/secret"
+        },
+        "headers": {
+          "$ref": "#/definitions/secret"
+        }
+      }
+    },
+    "agent": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {"enum": ["builtin", "external"]},
+        "clusterUID": {"type": "string", "maxLength": 128},
+        "nodeUID": {"type": "string", "maxLength": 128},
+        "aggregation": {"type": "object", "additionalProperties": false, "required": ["window"], "properties": {"window": {"type": "string", "pattern": "^[1-9][0-9]*(ms|s)$"}}},
+        "export": {"type": "object", "additionalProperties": false, "required": ["interval", "maxBatchBytes", "maxRequestBytes"], "properties": {
+          "interval": {"type": "string", "pattern": "^[1-9][0-9]*(ms|s)$"},
+          "maxBatchBytes": {"type": "integer", "minimum": 1024, "maximum": 262144},
+          "maxRequestBytes": {"type": "integer", "minimum": 8192, "maximum": 1048576}
+        }},
+        "runAsGroup": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "description": "Core Agent primary GID for host CRI socket access. Only applied with active modules; default 0."
+        },
+        "resources": {
+          "$ref": "#/definitions/resources"
+        },
+        "otlp": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "use_protobuf": {"type": "boolean"},
+            "flush_interval_ms": {"type":"integer", "minimum":50, "maximum":60000},
+            "endpoint": {
+              "type": "string"
+            },
+            "protocol": {
+              "enum": [
+                "grpc",
+                "http"
+              ]
+            },
+            "batch_size": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 512
+            },
+            "timeout_ms": {
+              "type": "integer",
+              "minimum": 50,
+              "maximum": 10000
+            },
+            "attempts": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5
+            }
+          },
+          "required": [
+            "endpoint",
+            "protocol",
+            "batch_size",
+            "timeout_ms",
+            "attempts"
+          ]
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "integer",
+              "number",
+              "boolean"
+            ],
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991,
+            "description": "Helm numeric precision is bounded. Quote larger identifiers as strings."
+          }
+        },
+        "stdout": {
+          "type": "boolean"
+        },
+        "queueSize": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65536
+        },
+        "maxEntries": {
+          "type": "integer",
+          "minimum": 16,
+          "maximum": 131072
+        },
+        "intervalSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "enrichmentWaitSeconds": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 60
+        },
+        "retentionSeconds": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 600
+        },
+        "delivery": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "directory": {
+              "enum": [
+                "",
+                "/var/lib/ivis-delivery",
+                "/var/lib/ivis-delivery/outbox"
+              ]
+            },
+            "max_bytes": {
+              "type": "integer",
+              "minimum": 65536,
+              "maximum": 4294967296
+            },
+            "max_batches": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65536
+            },
+            "shutdown_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 60
+            }
+          },
+          "required": [
+            "directory",
+            "max_bytes",
+            "max_batches",
+            "shutdown_seconds"
+          ]
+        }
+      },
+      "required": [
+        "resources",
+        "otlp",
+        "stdout",
+        "queueSize",
+        "maxEntries",
+        "intervalSeconds",
+        "enrichmentWaitSeconds",
+        "retentionSeconds",
+        "delivery"
+      ]
+    },
+    "modules": {
+      "type": "object",
+      "maxProperties": 16,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9-]{0,39}$"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/module"
+      },
+      "properties": {
+        "process": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/module"
+            },
+            {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "snapshot": {
+                      "type": "boolean"
+                    },
+                    "maxEntries": {
+                      "type": "integer",
+                      "minimum": 16,
+                      "maximum": 131072
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "cpu": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/module"
+            },
+            {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "window": {
+                      "type": "string",
+                      "pattern": "^[0-9]+(ns|us|ms|s|m|h)$",
+                      "maxLength": 32
+                    },
+                    "maxEntries": {
+                      "type": "integer",
+                      "minimum": 16,
+                      "maximum": 131072
+                    },
+                    "ringBytes": {
+                      "type": "integer",
+                      "minimum": 8388608,
+                      "maximum": 134217728
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "timing",
+                        "counts"
+                      ]
+                    },
+                    "rawQueueSize": {
+                      "type": "integer",
+                      "minimum": 4096,
+                      "maximum": 1048576
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "syscall": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/module"
+            },
+            {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "window": {
+                      "type": "string",
+                      "pattern": "^[0-9]+(ns|us|ms|s|m|h)$",
+                      "maxLength": 32
+                    },
+                    "maxEntries": {
+                      "type": "integer",
+                      "minimum": 16,
+                      "maximum": 131072
+                    },
+                    "openat": {
+                      "type": "boolean"
+                    },
+                    "openat2": {
+                      "type": "boolean"
+                    },
+                    "connect": {
+                      "type": "boolean"
+                    },
+                    "mmap": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "required": [
+    "name",
+    "image",
+    "agent",
+    "nodeSelector",
+    "podLabels",
+    "runtimeSocket",
+    "security"
+  ],
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repository": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+([.-][a-z0-9]+)*(:[0-9]+)?(/[a-z0-9]+([._-][a-z0-9]+)*)*$"
+        },
+        "tag": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$"
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "requests": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number"
+            ]
+          }
+        },
+        "limits": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number"
+            ]
+          }
+        }
+      }
+    },
+    "module": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "config": {
+          "type": "object"
+        },
+        "image": {
+          "$ref": "#/definitions/image"
+        },
+        "resources": {
+          "$ref": "#/definitions/resources"
+        },
+        "descriptor": {
+          "type": "string",
+          "pattern": "^files/modules/[a-z][a-z0-9-]*[.]yaml$"
+        }
+      }
+    },
+    "secret": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$"
+        },
+        "key": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._-]+$"
+        }
+      },
+      "required": [
+        "name",
+        "key"
+      ]
+    }
+  }
+}

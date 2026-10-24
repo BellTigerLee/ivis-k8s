@@ -1,0 +1,85 @@
+# Argo CD watches this chart directory. Edit this file; no generator or shell step.
+# Namespace comes from Argo destination.namespace / Helm --namespace.
+name: ivis-node-agent
+image:
+  repository: belltigerlee/ivis-prove-agent
+  tag: "0.5.3"
+  pullPolicy: Always
+  # Optional digest overrides tag for the Agent image.
+imagePullSecrets: []
+nodeSelector:
+  kubernetes.io/os: linux
+  # kubernetes.io/arch: amd64
+podLabels: {}
+runtimeSocket: /run/containerd/containerd.sock
+# Existing Secret name/key references only. Secret contents never belong here.
+security: {}
+agent:
+  mode: builtin # single container; external retains legacy module containers
+  clusterUID: "" # empty: discover kube-system namespace UID
+  nodeUID: "" # empty: discover this Node UID
+  aggregation:
+    window: 100ms
+  export:
+    interval: 500ms
+    maxBatchBytes: 262144 # complete standard OTLP Metrics request, no inner Body
+    maxRequestBytes: 1048576
+  # Primary group of the core Agent only. Match the host CRI socket GID when
+  # it is not root-owned (stat -c '%u:%g %a' /run/containerd/containerd.sock).
+  # This does not change host ownership/mode or grant additional capabilities.
+  runAsGroup: 0
+  resources:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {cpu: "2", memory: 512Mi}
+  otlp:
+    endpoint: http://collector:4318
+    protocol: http
+    use_protobuf: false
+    batch_size: 128
+    timeout_ms: 2000
+    attempts: 3
+  # metadata:
+  #   k8s.user.name: researcher
+  stdout: false
+  queueSize: 32768
+  maxEntries: 32768
+  intervalSeconds: 3
+  enrichmentWaitSeconds: 12
+  retentionSeconds: 90
+  # External mode only: optional Pod-scoped disk outbox (emptyDir), not a PVC.
+  # Builtin mode requires directory: "".
+  # Container restart retains it; Pod deletion/replacement does not.
+  delivery:
+    directory: ""
+    max_bytes: 268435456
+    max_batches: 4096
+    shutdown_seconds: 20
+
+modules:
+  process:
+    enabled: true
+    config:
+      snapshot: true
+  cpu:
+    enabled: true
+    config:
+      # counts: sparse event counts; timing: scheduler-state durations.
+      mode: counts
+      maxEntries: 32768
+  syscall:
+    # Counts native x86-64 syscall exits (openat, openat2, connect, mmap) per task,
+    # window and kernel return code. Enabled in this distribution snapshot.
+    # Needs read-only tracefs in the builtin agent or external syscall module.
+    # A count is a kernel exit
+    # count, not a function-call count, and says nothing about application health.
+    enabled: true
+    config:
+      window: 100ms
+      maxEntries: 32768
+      openat: true
+      openat2: true
+      connect: true
+      mmap: true
+# No top-level enabled switch. All modules OFF leaves the Agent idle.
+# Editing this file to remove a module disables it. In external Helm overrides,
+# omission / modules: {} merges defaults: use explicit enabled: false instead.

@@ -1,0 +1,50 @@
+apiVersion: ivis.module-descriptor/v1
+module:
+  id: cpu
+  source_repository: https://github.com/BellTigerLee/ivis-prove-agent
+  sources: [scheduler]
+  image: {repository: belltigerlee/ivis-cpu-module, tag: 0.5.1}
+  profile: kernel
+  executable: /ivis-cpu-module
+  schemas:
+    - name: cpu.scheduler.window
+      version: 1
+      fields:
+        begin_ns: uint64
+        end_ns: uint64
+        running_ns: uint64
+        runnable_ns: uint64
+        sleeping_ns: uint64
+        unknown_ns: uint64
+        wait_intervals: uint64_array
+        start_hook_cpu: uint64
+        end_hook_cpu: uint64
+        partial: bool
+        final: bool
+        source_loss: uint64
+        state_loss: uint64
+        evidence_loss: uint64
+    - name: cpu.scheduler.event_counts
+      version: 1
+      fields:
+        begin_ns: uint64
+        end_ns: uint64
+        collection_epoch: uint64
+        cut_ns: uint64
+        enabled_event_mask: uint64
+        switch_out_count: uint64
+        wakeup_count: uint64
+        wakeup_new_count: uint64
+        migration_count: uint64
+        epoch_loss: uint64
+        partial: bool
+  feature: {max_entries: 32768, max_interval_ns: 100000000}
+  resources:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {cpu: "2", memory: 512Mi}
+settings:
+  mode: {field: mode, type: string}
+  window: {field: max_interval_ns, type: duration, minimum: 1000000, maximum: 60000000000}
+  maxEntries: {field: max_entries, type: integer, minimum: 16, maximum: 131072}
+  ringBytes: {field: ring_bytes, type: integer, minimum: 8388608, maximum: 134217728}
+  rawQueueSize: {field: raw_queue_size, type: integer, minimum: 4096, maximum: 1048576}
